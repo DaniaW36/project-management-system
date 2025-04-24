@@ -29,3 +29,5 @@ Route::put('/projects/{id}', [\App\Http\Controllers\ProjectController::class, 'u
 Route::delete('/projects/{id}', [\App\Http\Controllers\ProjectController::class, 'destroy'])->name('projects.destroy');
 
 Route::post('/projects/{project}/attachments/{index}/delete', [\App\Http\Controllers\ProjectController::class, 'deleteAttachment'])->name('projects.delete-attachment');
+
+Route::get('/tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
