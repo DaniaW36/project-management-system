@@ -33,7 +33,7 @@
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priority</th>
                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
-                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Assigned To</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                     </tr>
                 </thead>
 
@@ -44,14 +44,46 @@
                         <td class="text-sm text-secondary mb-0">{{ $task->project->proj_name ?? '-' }}</td>
 
                         <td class="align-middle text-center text-sm">
-                            <span class="badge bg-secondary text-capitalize">
+                            @php
+                                $status = strtolower(trim($task->task_status ?? ''));
+                                $statusClass = '';
+
+                                if ($status == 'not_started') {
+                                    $statusClass = 'bg-gradient-warning';
+                                } elseif ($status == 'pending') {
+                                    $statusClass = 'bg-gradient-info';
+                                } elseif ($status == 'in_progress') {
+                                    $statusClass = 'bg-gradient-secondary';
+                                } elseif ($status == 'completed') {
+                                    $statusClass = 'bg-gradient-success';
+                                } else {
+                                    $statusClass = 'bg-gradient-light'; // fallback
+                                }
+                            @endphp
+
+                            <span class="badge {{ $statusClass }} text-white text-capitalize">
                                 {{ str_replace('_', ' ', $task->task_status) }}
                             </span>
                         </td>
 
                         <td class="align-middle text-center text-sm">
-                            <span class="badge bg-info text-capitalize">
-                                {{ $task->task_priority }}
+                            @php
+                                $priority = trim(ucwords(strtolower($task->task_priority ?? '')));
+                                $priorityClass = '';
+
+                                if ($priority == 'High') {
+                                    $priorityClass = 'bg-gradient-danger';
+                                } elseif ($priority == 'Medium') {
+                                    $priorityClass = 'bg-gradient-warning';
+                                } elseif ($priority == 'Low') {
+                                    $priorityClass = 'bg-gradient-info';
+                                } else {
+                                    $priorityClass = 'bg-gradient-light'; // fallback
+                                }
+                            @endphp
+
+                            <span class="badge {{ $priorityClass }} text-white text-capitalize">
+                                {{ $priority }}
                             </span>
                         </td>
 
@@ -59,9 +91,19 @@
                             {{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('d M Y') : '-' }}
                         </td>
 
-                        <td class="align-middle text-center text-sm">
-                            {{ $task->user->name ?? 'Unassigned' }}
+                        <td class="align-middle text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-warning btn-sm">Edit</a>
+
+                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
                         </td>
+
                     </tr>
                     @empty
                     <tr>

@@ -75,6 +75,11 @@ public function store(Request $request)
     return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
 }
 
+public function show($id)
+    {
+        $task = Task::findOrFail($id);
+        return view('tasks.show', compact('task'));
+    }
 
 
 
