@@ -9,11 +9,28 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index(Project $project)
-    {
-        $tasks = $project->tasks()->with('user')->get(); // eager load user
-        return view('tasks.index', compact('project', 'tasks'));
+    public function index(Request $request)
+{
+    $projects = Project::all();
+
+    $query = Task::with(['project', 'user']); // Eager load project + user
+
+    if ($request->filled('project_id')) {
+        $query->where('project_id', $request->project_id);
     }
+
+    $tasks = $query->get();
+
+    return view('tasks.index', compact('tasks', 'projects'));
+}
+
+
+     // Show tasks for a specific project
+     public function projectTasks(Project $project)
+     {
+         $tasks = $project->tasks()->with('user')->get();
+         return view('tasks.project_tasks', compact('project', 'tasks'));
+     }
 
     public function create()
 {
