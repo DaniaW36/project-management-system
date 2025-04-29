@@ -81,6 +81,59 @@ public function show($id)
         return view('tasks.show', compact('task'));
     }
 
+    public function edit($id)
+{
+    $task = Task::findOrFail($id);
+    $projects = Project::all(); // for the project dropdown
 
+    return view('tasks.edit', compact('task', 'projects'));
+}
+
+public function update(Request $request, $id)
+{
+    $task = Task::findOrFail($id);
+
+    $validated = $request->validate([
+        'task_name' => 'required|string|max:255',
+        'project_id' => 'required|exists:projects,id',
+        'task_status' => 'required|in:not_started,pending,in_progress,completed',
+        'task_priority' => 'required|in:High,Medium,Low',
+        'due_date' => 'nullable|date',
+        'task_desc' => 'nullable|string',
+        'attachments.*' => 'nullable|file|max:2048' // max 2MB per file
+    ]);
+
+    $task->update([
+        'task_name' => $validated['task_name'],
+        'project_id' => $validated['project_id'],
+        'task_status' => $validated['task_status'],
+        'task_priority' => $validated['task_priority'],
+        'due_date' => $validated['due_date'] ?? null,
+        'task_desc' => $validated['task_desc'] ?? null,
+    ]);
+
+    // Handle new attachments
+    if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            $filePath = $file->store('attachments', 'public');
+
+            $task->attachments()->create([
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $filePath,
+            ]);
+        }
+    }
+
+    return redirect()->route('tasks.show', $task->id)
+                     ->with('success', 'Task updated successfully.');
+}
+
+public function destroy($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->delete();
+
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+    }
 
 }
