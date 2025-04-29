@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
 
 
 
@@ -30,4 +31,10 @@ Route::delete('/projects/{id}', [\App\Http\Controllers\ProjectController::class,
 
 Route::post('/projects/{project}/attachments/{index}/delete', [\App\Http\Controllers\ProjectController::class, 'deleteAttachment'])->name('projects.delete-attachment');
 
+
+// Route for viewing all tasks (optional, if you still want to keep it)
 Route::get('/tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+Route::get('/tasks/create', [\App\Http\Controllers\TaskController::class, 'create'])->name('tasks.create');
+Route::post('/tasks', [\App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+// Route for viewing tasks for a specific project
+Route::get('/projects/{project}/tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('projects.tasks.index');
