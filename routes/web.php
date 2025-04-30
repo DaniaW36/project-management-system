@@ -39,3 +39,6 @@ Route::post('/tasks', [\App\Http\Controllers\TaskController::class, 'store'])->n
 // Route for viewing tasks for a specific project
 Route::get('/projects/{project}/tasks', [\App\Http\Controllers\TaskController::class, 'projectTasks'])->name('projects.tasks.index');
 Route::resource('tasks', TaskController::class);
+
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
