@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ProfileController;
 
 
 
@@ -40,5 +41,5 @@ Route::post('/tasks', [\App\Http\Controllers\TaskController::class, 'store'])->n
 Route::get('/projects/{project}/tasks', [\App\Http\Controllers\TaskController::class, 'projectTasks'])->name('projects.tasks.index');
 Route::resource('tasks', TaskController::class);
 
-Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
