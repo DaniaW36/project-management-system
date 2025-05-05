@@ -10,32 +10,30 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
 
-public function index()
-{
-    $user = Auth::user();
+    public function index()
+    {
+        $totalProjects = Project::count();
+        $totalTasks = Task::count();
+        $completedTasks = Task::where('task_status', 'Completed')->count();
+        $pendingTasks = Task::where('task_status', '!=', 'Completed')->count();
 
-    $totalProjects = Project::count();
-    $totalTasks = Task::count();
-    $completedTasks = Task::where('task_status', 'Completed')->count();
-    $pendingTasks = Task::where('task_status', '!=', 'Completed')->count();
+        // Group tasks by status
+        $taskStatusChart = Task::select('task_status', \DB::raw('count(*) as total'))
+            ->groupBy('task_status')
+            ->pluck('total', 'task_status');
 
-    $taskStatusChart = Task::selectRaw('task_status, COUNT(*) as count')
-                            ->groupBy('task_status')
-                            ->pluck('count', 'task_status');
+        $recentTasks = Task::with('project')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-    $recentTasks = Task::with('project')
-                        ->latest()
-                        ->take(5)
-                        ->get();
-
-    return view('dashboard', compact(
-        'totalProjects',
-        'totalTasks',
-        'completedTasks',
-        'pendingTasks',
-        'taskStatusChart',
-        'recentTasks'
-    ));
-}
-
+        return view('staffdashboard.dashboard', compact(
+            'totalProjects',
+            'totalTasks',
+            'completedTasks',
+            'pendingTasks',
+            'taskStatusChart',
+            'recentTasks'
+        ));
+    }
 }
