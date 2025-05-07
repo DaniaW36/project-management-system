@@ -58,7 +58,7 @@
                         @foreach ($recentTasks as $task)
                             <tr>
                                 <td>{{ $task->task_name }}</td>
-                                <td>{{ $task->project->project_name ?? 'N/A' }}</td>
+                                <td>{{ $task->project->proj_name ?? 'N/A' }}</td>
                                 <td>{{ $task->task_status }}</td>
                                 <td>{{ $task->due_date ?? '-' }}</td>
                             </tr>

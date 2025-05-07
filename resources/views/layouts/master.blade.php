@@ -36,6 +36,8 @@
   <!-- Nepcha Analytics (nepcha.com) -->
   <!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
   <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="g-sidenav-show  bg-gray-100">
@@ -87,7 +89,7 @@
                 </g>
               </svg>
             </div>
-            <span class="nav-link-text ms-1">Projects</span>
+            <span class="nav-link-text ms-1">Project</span>
           </a>
         </li>
         <li class="nav-item">
@@ -160,9 +162,9 @@
         <li class="nav-item">
             <form id="logout-form" action="{{ route('logout') }}" method="POST">
               @csrf
-              <button type="submit" class="nav-link bg-transparent border-0 d-flex align-items-center">
+                <button type="submit" class="nav-link bg-transparent border-0 d-flex align-items-center">
                 <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center me-2">
-                  <i class="fas fa-sign-out-alt"></i> {{-- Logout icon --}}
+                  <i class="fas fa-sign-out-alt" style="color: black;"></i> {{-- Logout icon --}}
                 </div>
                 <span class="nav-link-text ms-1">Log Out</span>
               </button>
@@ -174,18 +176,29 @@
   </aside>
   <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
     <!-- Navbar -->
+
+    @php
+    $routeName = Route::currentRouteName(); // e.g., 'projects.index'
+    $baseName = explode('.', $routeName)[0]; // Get 'projects'
+    $pageTitle = ucwords(str_replace('_', ' ', $baseName)); // 'projects' => 'Projects'
+    @endphp
+
     <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="true">
       <div class="container-fluid py-1 px-3">
         <nav aria-label="breadcrumb">
-          <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Project</li>
-          </ol>
-          <h6 class="font-weight-bolder mb-0">Project</h6>
-        </nav>
+            <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+              <li class="breadcrumb-item text-sm">
+                <a class="opacity-5 text-dark" href="javascript:;">Pages</a>
+              </li>
+              <li class="breadcrumb-item text-sm text-dark active" aria-current="page">
+                {{ $pageTitle }}
+              </li>
+            </ol>
+            <h6 class="font-weight-bolder mb-0">{{ $pageTitle }}</h6>
+          </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-            
+
           </div>
           <ul class="navbar-nav  justify-content-end">
 

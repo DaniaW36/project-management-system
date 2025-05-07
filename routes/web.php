@@ -7,46 +7,38 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+// Public routes
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/projects', [\App\Http\Controllers\ProjectController::class, 'index'])->name('projects.index');
-Route::get('/projects/create', [\App\Http\Controllers\ProjectController::class, 'create'])->name('projects.create');
-Route::get('/projects/{id}', [\App\Http\Controllers\ProjectController::class, 'show'])->name('projects.show');
-Route::post('/projects', [\App\Http\Controllers\ProjectController::class, 'store'])->name('projects.store');
-Route::get('/projects/{id}/edit', [\App\Http\Controllers\ProjectController::class, 'edit'])->name('projects.edit');
-Route::put('/projects/{id}', [\App\Http\Controllers\ProjectController::class, 'update'])->name('projects.update');
-Route::delete('/projects/{id}', [\App\Http\Controllers\ProjectController::class, 'destroy'])->name('projects.destroy');
-
-Route::post('/projects/{project}/attachments/{index}/delete', [\App\Http\Controllers\ProjectController::class, 'deleteAttachment'])->name('projects.delete-attachment');
-
-
-// Route for viewing all tasks (optional, if you still want to keep it)
-Route::get('/tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
-Route::get('/tasks/create', [\App\Http\Controllers\TaskController::class, 'create'])->name('tasks.create');
-Route::post('/tasks', [\App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
-// Route for viewing tasks for a specific project
-Route::get('/projects/{project}/tasks', [\App\Http\Controllers\TaskController::class, 'projectTasks'])->name('projects.tasks.index');
-Route::resource('tasks', TaskController::class);
-
-Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// Secure routes — must be logged in to access
+Route::middleware(['auth'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Projects
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::get('/projects/{id}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{id}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+    Route::put('/projects/{id}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::post('/projects/{project}/attachments/{index}/delete', [ProjectController::class, 'deleteAttachment'])->name('projects.delete-attachment');
+
+    // Tasks
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('/projects/{project}/tasks', [TaskController::class, 'projectTasks'])->name('projects.tasks.index');
+    Route::resource('tasks', TaskController::class)->except(['index', 'create', 'store']);
+
+    // Profile
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
