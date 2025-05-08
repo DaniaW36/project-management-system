@@ -11,7 +11,7 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::all();
+        $projects = Project::where('user_id', auth()->id())->get();
         return view('projects.index', compact(['projects']));
     }
 
@@ -59,7 +59,7 @@ class ProjectController extends Controller
             'proj_end_date' => $request->proj_end_date,
             'proj_latest_update' => now(),
             'proj_attachments' => json_encode ($attachments),
-            'user_id' => 1  //auth()->id(), // Assuming logged-in user is the project owner
+            'user_id' => auth()-> id,  //auth()->id(), // Assuming logged-in user is the project owner
         ]);
 
         return redirect()->route('projects.index')->with('success', 'Project created successfully.');
@@ -106,7 +106,7 @@ $projects->update([
             'proj_end_date' => $request->proj_end_date,
             'proj_latest_update' => now(),
             'proj_attachments' => json_encode ($attachments),
-            'user_id' => 1  //auth()->id(), // Assuming logged-in user is the project owner
+            'user_id' => auth()->id(), // Assuming logged-in user is the project owner
         ]);
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');

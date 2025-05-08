@@ -12,13 +12,13 @@ class ProfileController extends Controller
 {
     public function edit()
 {
-    $user = User::find(1); // hardcoded user ID
+    $user = Auth::user(); // hardcoded user ID
     return view('profile.edit', compact('user'));
 }
 
 public function update(Request $request)
 {
-    $user = User::find(1); // hardcoded user ID
+    $user = Auth::user();  // hardcoded user ID
 
     $request->validate([
         'name' => 'required|string|max:255',

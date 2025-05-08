@@ -9,11 +9,17 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+
+    public function __construct()
+    {
+        // Apply auth middleware to ensure only authenticated users can access these methods
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
 {
-    $projects = Project::all();
-
-    $query = Task::with(['project', 'user']); // Eager load project + user
+    $projects = Project::where('user_id', auth()->id())->get();
+    $query = Task::where('user_id', auth()->id())->with(['project', 'user']); // Eager load project + user
 
     if ($request->filled('project_id')) {
         $query->where('project_id', $request->project_id);
@@ -63,7 +69,7 @@ public function store(Request $request)
 
     Task::create([
         'project_id' => $request['project_id'],
-        'user_id' => auth()->id() ?? 1, // default to user 1 for now
+        'user_id' => auth()->id(), // default to user 1 for now
         'task_name' => $request->task_name,
         'task_desc' => $request->task_desc,
         'task_status' => $request->task_status,
@@ -77,13 +83,13 @@ public function store(Request $request)
 
 public function show($id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::where('user_id', auth()->id())->findOrFail($id);
         return view('tasks.show', compact('task'));
     }
 
     public function edit($id)
 {
-    $task = Task::findOrFail($id);
+    $task = Task::where('user_id', auth()->id())->findOrFail($id);
     $projects = Project::all(); // for the project dropdown
 
     return view('tasks.edit', compact('task', 'projects'));
@@ -130,7 +136,7 @@ public function update(Request $request, $id)
 
 public function destroy($id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::where('user_id', auth()->id())->findOrFail($id);
         $task->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
