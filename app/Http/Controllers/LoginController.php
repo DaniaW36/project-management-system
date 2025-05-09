@@ -14,28 +14,27 @@ class LoginController extends Controller
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
 
-        // Role-based redirection
-        if (Auth::user()->role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
-        } else {
-            return redirect()->intended('/dashboard');
+            // Role-based redirection
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended('/admin/dashboard');
+            } else {
+                return redirect()->intended('/dashboard');
+            }
         }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
-
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
-}
-
 
     public function logout(Request $request)
     {
@@ -45,5 +44,4 @@ class LoginController extends Controller
 
         return redirect('/login');
     }
-
 }

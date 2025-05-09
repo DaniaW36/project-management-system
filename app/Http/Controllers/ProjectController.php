@@ -17,8 +17,8 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-        $projects = Project::findorFail($id);
-        return view('projects.show', compact(['projects']));
+        $project = Project::findorFail($id);
+        return view('projects.show', compact('project'));
     }
 
     public function create()

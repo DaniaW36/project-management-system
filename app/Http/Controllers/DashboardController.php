@@ -18,8 +18,8 @@ class DashboardController extends Controller
 
         $totalProjects = Project::where('user_id', $userId)->count();
         $totalTasks = Task::where('user_id', $userId)->count();
-        $completedTasks = Task::where('user_id', $userId)->where('task_status', 'Completed')->count();
-        $pendingTasks = Task::where('user_id', $userId)->where('task_status', '!=', 'Completed')->count();
+        $completedTasks = Task::where('user_id', $userId)->where('task_status', 'completed')->count();
+        $pendingTasks = Task::where('user_id', $userId)->where('task_status', '!=', 'completed')->count();
 
         // Group tasks by status
         $taskStatusChart = Task::select('task_status', \DB::raw('count(*) as total'))
@@ -45,17 +45,58 @@ class DashboardController extends Controller
 
     public function adminIndex()
     {
-        $staff = User::where('role', 'staff')->get();
-        $projects = Project::with('user')->latest()->get();
-        $tasks = Task::with(['project', 'user'])->latest()->get();
+        // Get all staff members with their projects and tasks
+        $staff = User::where('role', 'staff')
+            ->with(['projects', 'tasks'])
+            ->get();
+        
+        // Get all projects with their assigned users and tasks
+        $projects = Project::with(['user', 'tasks'])
+            ->latest()
+            ->get();
+        
+        // Get all tasks with their related projects and users
+        $tasks = Task::with(['project', 'user'])
+            ->latest()
+            ->get();
 
-        // Add these task summary calculations
-        $completedTasks = $tasks->where('task_status', 'Completed')->count();
-        $pendingTasks = $tasks->where('task_status', '!=', 'Completed')->count();
+        // Calculate task statistics
+        $completedTasks = $tasks->where('task_status', 'completed')->count();
+        $pendingTasks = $tasks->where('task_status', '!=', 'completed')->count();
         $totalTasks = $tasks->count();
 
-        // Group tasks by status (for chart)
-        $taskStatusChart = $tasks->groupBy('task_status')->map->count();
+        // Calculate project statistics
+        $totalProjects = $projects->count();
+        $activeProjects = $projects->where('proj_status', 'In Progress')->count();
+
+        // Count tasks by status using groupBy
+        $taskStatusChart = $tasks->groupBy('task_status')
+            ->map(function ($group) {
+                return $group->count();
+            });
+
+        // Ensure all statuses are present in the chart data
+        $allStatuses = ['not_started', 'pending', 'in_progress', 'completed'];
+        $taskStatusChart = collect($allStatuses)->mapWithKeys(function ($status) use ($taskStatusChart) {
+            return [$status => $taskStatusChart->get($status, 0)];
+        });
+
+        // Calculate staff performance metrics
+        $staffMetrics = $staff->map(function ($member) use ($tasks, $projects) {
+            $memberTasks = $tasks->where('user_id', $member->id);
+            $completedMemberTasks = $memberTasks->where('task_status', 'completed')->count();
+            $totalMemberTasks = $memberTasks->count();
+            
+            return [
+                'id' => $member->id,
+                'name' => $member->name,
+                'email' => $member->email,
+                'total_tasks' => $totalMemberTasks,
+                'completed_tasks' => $completedMemberTasks,
+                'completion_rate' => $totalMemberTasks > 0 ? round(($completedMemberTasks / $totalMemberTasks) * 100) : 0,
+                'active_projects' => $projects->where('user_id', $member->id)->where('proj_status', 'In Progress')->count()
+            ];
+        });
 
         return view('admin.dashboard', compact(
             'staff',
@@ -64,7 +105,10 @@ class DashboardController extends Controller
             'completedTasks',
             'pendingTasks',
             'totalTasks',
-            'taskStatusChart'
+            'totalProjects',
+            'activeProjects',
+            'taskStatusChart',
+            'staffMetrics'
         ));
     }
 

@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Profile
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::middleware(['auth', 'is_admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'adminIndex'])->name('admin.dashboard');

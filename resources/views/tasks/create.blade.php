@@ -1,81 +1,134 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="card mb-4">
-    <h2>Create New Task</h2>
-
-    <div class="card-body px-2 pt-0 pb-2">
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Create New Task</h4>
+                            <p class="mb-0">Add a new task to your project</p>
+                        </div>
+                        <a href="{{ route('tasks.index') }}" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Tasks
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    @endif
+    </div>
 
-    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-        {{-- Project Dropdown --}}
-        <div class="mb-3">
-            <label for="project_id" class="form-label">Project</label>
-            <select name="project_id" class="form-select" required>
-                <option value="">Select a project</option>
-                @foreach($projects as $project)
-                    <option value="{{ $project->id }}">{{ $project->project_name }}</option>
-                @endforeach
-            </select>
+                    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <!-- Task Name -->
+                                <div class="form-group mb-4">
+                                    <label for="task_name" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Task Name</label>
+                                    <input type="text" class="form-control" id="task_name" name="task_name" required 
+                                           value="{{ old('task_name') }}"
+                                           placeholder="Enter task name">
+                                </div>
+
+                                <!-- Task Description -->
+                                <div class="form-group mb-4">
+                                    <label for="task_desc" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Task Description</label>
+                                    <textarea class="form-control" id="task_desc" name="task_desc" required rows="4"
+                                              placeholder="Enter task description">{{ old('task_desc') }}</textarea>
+                                </div>
+
+                                <!-- Project Selection -->
+                                <div class="form-group mb-4">
+                                    <label for="project_id" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Project</label>
+                                    <select class="form-select" id="project_id" name="project_id" required>
+                                        <option value="">Select a project</option>
+                                        @foreach($projects as $project)
+                                            <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
+                                                {{ $project->proj_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Task Status -->
+                                <div class="form-group mb-4">
+                                    <label for="task_status" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Task Status</label>
+                                    <select class="form-select" id="task_status" name="task_status" required>
+                                        @foreach(['Pending', 'In Progress', 'On Hold', 'Completed'] as $status)
+                                            <option value="{{ $status }}" {{ old('task_status') == $status ? 'selected' : '' }}>
+                                                {{ $status }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <!-- Task Priority -->
+                                <div class="form-group mb-4">
+                                    <label for="task_priority" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Priority</label>
+                                    <select class="form-select" id="task_priority" name="task_priority" required>
+                                        @foreach(['Low', 'Medium', 'High'] as $priority)
+                                            <option value="{{ $priority }}" {{ old('task_priority') == $priority ? 'selected' : '' }}>
+                                                {{ $priority }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Start Date -->
+                                <div class="form-group mb-4">
+                                    <label for="task_start_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Start Date</label>
+                                    <input type="date" class="form-control" id="task_start_date" name="task_start_date"
+                                           value="{{ old('task_start_date') }}">
+                                </div>
+
+                                <!-- Due Date -->
+                                <div class="form-group mb-4">
+                                    <label for="task_due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
+                                    <input type="date" class="form-control" id="task_due_date" name="task_due_date"
+                                           value="{{ old('task_due_date') }}">
+                                </div>
+
+                                <!-- Task Attachments -->
+                                <div class="form-group mb-4">
+                                    <label for="task_attachments" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Task Attachments</label>
+                                    <input type="file" class="form-control" id="task_attachments" name="task_attachments[]" multiple>
+                                    <small class="text-muted">You can select multiple files. Maximum file size: 10MB per file.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        {{-- Task Name --}}
-        <div class="mb-3">
-            <label for="task_name" class="form-label">Task Name</label>
-            <input type="text" name="task_name" class="form-control" required>
-        </div>
-
-        {{-- Task Description --}}
-        <div class="mb-3">
-            <label for="task_desc" class="form-label">Task Description</label>
-            <textarea name="task_desc" class="form-control" rows="3"></textarea>
-        </div>
-
-        {{-- Task Status --}}
-        <div class="mb-3">
-            <label for="task_status" class="form-label">Status</label>
-            <select name="task_status" class="form-select" required>
-                <option value="not_started">Not Started</option>
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-            </select>
-        </div>
-
-        {{-- Task Priority --}}
-        <div class="mb-3">
-            <label for="task_priority" class="form-label">Priority</label>
-            <select name="task_priority" class="form-select" required>
-                <option value="low">Low</option>
-                <option value="medium" selected>Medium</option>
-                <option value="high">High</option>
-            </select>
-        </div>
-
-        {{-- Due Date --}}
-        <div class="mb-3">
-            <label for="due_date" class="form-label">Due Date</label>
-            <input type="date" name="due_date" class="form-control">
-        </div>
-
-        {{-- File Upload --}}
-        <div class="mb-3">
-            <label for="task_attachments" class="form-label">Attachments (multiple files allowed)</label>
-            <input type="file" name="task_attachments[]" class="form-control" multiple>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create Task</button>
-    </form>
+    </div>
 </div>
 @endsection

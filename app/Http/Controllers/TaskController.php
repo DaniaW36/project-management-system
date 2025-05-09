@@ -106,9 +106,21 @@ public function update(Request $request, $id)
         'task_priority' => 'required|in:High,Medium,Low',
         'due_date' => 'nullable|date',
         'task_desc' => 'nullable|string',
-        'attachments.*' => 'nullable|file|max:2048' // max 2MB per file
+        'task_attachments.*' => 'nullable|file|max:2048' // Fixed the field name
     ]);
 
+    // Get existing attachments
+    $attachments = json_decode($task->task_attachments, true) ?? [];
+
+    // Handle new attachments
+    if ($request->hasFile('task_attachments')) {
+        foreach ($request->file('task_attachments') as $file) {
+            $path = $file->store('attachments', 'public');
+            $attachments[] = $path;
+        }
+    }
+
+    // Update the task
     $task->update([
         'task_name' => $validated['task_name'],
         'project_id' => $validated['project_id'],
@@ -116,19 +128,8 @@ public function update(Request $request, $id)
         'task_priority' => $validated['task_priority'],
         'due_date' => $validated['due_date'] ?? null,
         'task_desc' => $validated['task_desc'] ?? null,
+        'task_attachments' => json_encode($attachments)
     ]);
-
-    // Handle new attachments
-    if ($request->hasFile('attachments')) {
-        foreach ($request->file('attachments') as $file) {
-            $filePath = $file->store('attachments', 'public');
-
-            $task->attachments()->create([
-                'file_name' => $file->getClientOriginalName(),
-                'file_path' => $filePath,
-            ]);
-        }
-    }
 
     return redirect()->route('tasks.show', $task->id)
                      ->with('success', 'Task updated successfully.');
@@ -141,5 +142,34 @@ public function destroy($id)
 
         return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
+
+public function deleteAttachment(Task $task, $index)
+{
+    // Get the attachments array
+    $attachments = json_decode($task->task_attachments, true) ?? [];
+
+    // Check if the attachment exists in the array
+    if (isset($attachments[$index])) {
+        // Get the file path
+        $filePath = storage_path('app/public/' . $attachments[$index]);
+        dd($filePath);
+        // Delete file from storage
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        // Remove the attachment and reindex the array
+        unset($attachments[$index]);
+        $attachments = array_values($attachments);
+
+        // Update the task with the new attachments
+        $task->update([
+            'task_attachments' => json_encode($attachments)
+        ]);
+    }
+
+    // Redirect back with a success message
+    return redirect()->route('tasks.edit', $task->id)->with('success', 'Attachment deleted successfully.');
+}
 
 }
