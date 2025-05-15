@@ -53,8 +53,8 @@ public function store(Request $request)
         'task_name' => 'required|string|max:255',
         'task_desc' => 'nullable|string',
         'task_status' => 'required|in:not_started,pending,in_progress,completed',
-        'task_priority' => 'required|in:low,medium,high',
-        'due_date' => 'nullable|date',
+        'task_priority' => 'required',
+        'due_date' => 'required|date',
         'task_attachments.*' => 'nullable|file|max:2048', // 2MB max per file
     ]);
 
@@ -78,7 +78,7 @@ public function store(Request $request)
         'task_attachments' => $attachments ? json_encode($attachments) : null,
     ]);
 
-    return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+    return redirect()->route('staff.tasks.index')->with('success', 'Task created successfully.');
 }
 
 public function show($id)
@@ -103,14 +103,14 @@ public function update(Request $request, $id)
         'task_name' => 'required|string|max:255',
         'project_id' => 'required|exists:projects,id',
         'task_status' => 'required|in:not_started,pending,in_progress,completed',
-        'task_priority' => 'required|in:High,Medium,Low',
-        'due_date' => 'nullable|date',
+        'task_priority' => 'required|in:low,medium,high',
+        'due_date' => 'required|date',
         'task_desc' => 'nullable|string',
         'task_attachments.*' => 'nullable|file|max:2048' // Fixed the field name
     ]);
 
     // Get existing attachments
-    $attachments = json_decode($task->task_attachments, true) ?? [];
+    $attachments = $task->task_attachments ?? [];
 
     // Handle new attachments
     if ($request->hasFile('task_attachments')) {
@@ -128,10 +128,10 @@ public function update(Request $request, $id)
         'task_priority' => $validated['task_priority'],
         'due_date' => $validated['due_date'] ?? null,
         'task_desc' => $validated['task_desc'] ?? null,
-        'task_attachments' => json_encode($attachments)
+        'task_attachments' => $attachments // Already an array, mutator will handle json_encode
     ]);
 
-    return redirect()->route('tasks.show', $task->id)
+    return redirect()->route('staff.tasks.show', $task->id)
                      ->with('success', 'Task updated successfully.');
 }
 
@@ -145,10 +145,9 @@ public function destroy($id)
 
 public function deleteAttachment(Task $task, $index)
 {
-    // Get the attachments array
-    $attachments = json_decode($task->task_attachments, true) ?? [];
-
-    // Check if the attachment exists in the array
+    // Ensure task_attachments is an array
+    $attachments = $task->task_attachments ?? [];
+    
     if (isset($attachments[$index])) {
         // Get the file path
         $filePath = storage_path('app/public/' . $attachments[$index]);

@@ -117,12 +117,7 @@
                             <span class="text-sm">Phone</span>
                             <span class="text-sm font-weight-bold">{{ $user->phone ?? 'Not Set' }}</span>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-sm">Member Since</span>
-                            <span class="text-sm font-weight-bold">
-                                {{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}
-                            </span>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -135,19 +130,10 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h6 class="mb-0">Two-Factor Authentication</h6>
-                            <p class="text-sm text-muted mb-0">Add an extra layer of security</p>
+                            <h6 class="mb-0">Password</h6>
+                            <p class="text-sm text-muted mb-0">Change your current password</p>
                         </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="twoFactorAuth" disabled>
-                            <label class="form-check-label" for="twoFactorAuth"></label>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-0">Last Login</h6>
-                            <p class="text-sm text-muted mb-0">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</p>
-                        </div>
+                        <a href="{{ route('profile.password.change.form') }}" class="btn btn-sm btn-outline-secondary">Change Password</a>
                     </div>
                 </div>
             </div>

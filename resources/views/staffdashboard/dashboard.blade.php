@@ -172,7 +172,7 @@
             <div class="card">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>My Recent Tasks</h6>
-                    <a href="{{ route('tasks.index') }}" class="btn btn-sm btn-primary">View All</a>
+                    <a href="{{ route('staff.tasks.index') }}" class="btn btn-sm btn-primary">View All</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -214,7 +214,13 @@
                                     <td>{{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('M d, Y') : '-' }}</td>
                                     <td>
                                         @php
-                                            $progress = $task->progress ?? 0;
+                                            $progress = match($task->task_status) {
+                                                'not_started' => 0,
+                                                'pending' => 25,
+                                                'in_progress' => 50,
+                                                'completed' => 100,
+                                                default => 0
+                                            };
                                         @endphp
                                         <div class="progress">
                                             <div class="progress-bar bg-gradient-success" role="progressbar" 

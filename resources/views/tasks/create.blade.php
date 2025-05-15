@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Create New Task</h4>
                             <p class="mb-0">Add a new task to your project</p>
                         </div>
-                        <a href="{{ route('tasks.index') }}" class="btn btn-light">
+                        <a href="{{ route('staff.tasks.index') }}" class="btn btn-light">
                             <i class="fas fa-arrow-left me-2"></i>Back to Tasks
                         </a>
                     </div>
@@ -35,7 +35,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('staff.tasks.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">
@@ -73,9 +73,9 @@
                                 <div class="form-group mb-4">
                                     <label for="task_status" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Task Status</label>
                                     <select class="form-select" id="task_status" name="task_status" required>
-                                        @foreach(['Pending', 'In Progress', 'On Hold', 'Completed'] as $status)
-                                            <option value="{{ $status }}" {{ old('task_status') == $status ? 'selected' : '' }}>
-                                                {{ $status }}
+                                        @foreach(['not_started' => 'Not Started', 'pending' => 'Pending', 'in_progress' => 'In Progress', 'completed' => 'Completed'] as $value => $label)
+                                            <option value="{{ $value }}" {{ old('task_status') == $value ? 'selected' : '' }}>
+                                                {{ $label }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -96,18 +96,11 @@
                                     </select>
                                 </div>
 
-                                <!-- Start Date -->
-                                <div class="form-group mb-4">
-                                    <label for="task_start_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Start Date</label>
-                                    <input type="date" class="form-control" id="task_start_date" name="task_start_date"
-                                           value="{{ old('task_start_date') }}">
-                                </div>
-
                                 <!-- Due Date -->
                                 <div class="form-group mb-4">
-                                    <label for="task_due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
-                                    <input type="date" class="form-control" id="task_due_date" name="task_due_date"
-                                           value="{{ old('task_due_date') }}">
+                                    <label for="due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
+                                    <input type="date" class="form-control" id="due_date" name="due_date"
+                                           value="{{ old('due_date') }}">
                                 </div>
 
                                 <!-- Task Attachments -->

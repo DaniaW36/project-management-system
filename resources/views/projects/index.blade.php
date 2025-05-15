@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Projects Overview</h4>
                             <p class="mb-0">Manage and track all your projects</p>
                         </div>
-                        <a href="{{ route('projects.create') }}" class="btn btn-light">
+                        <a href="{{ route('staff.projects.create') }}" class="btn btn-light">
                             <i class="fas fa-plus me-2"></i>Add New Project
                         </a>
                     </div>
@@ -196,19 +196,19 @@
                             </td>
                             <td class="align-middle text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('projects.show', $project->id) }}" 
+                                    <a href="{{ route('staff.projects.show', $project->id) }}" 
                                         class="btn btn-link text-primary px-3 mb-0" 
                                         data-bs-toggle="tooltip" 
                                         data-bs-original-title="View project">
                                         <i class="fas fa-eye text-primary me-2"></i>View
                                     </a>
-                                    <a href="{{ route('projects.edit', $project->id) }}" 
+                                    <a href="{{ route('staff.projects.edit', $project->id) }}" 
                                         class="btn btn-link text-warning px-3 mb-0"
                                         data-bs-toggle="tooltip" 
                                         data-bs-original-title="Edit project">
                                         <i class="fas fa-pencil-alt text-warning me-2"></i>Edit
                                     </a>
-                                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('staff.projects.destroy', $project->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 

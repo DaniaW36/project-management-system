@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Edit Task</h4>
                             <p class="mb-0">Update task information</p>
                         </div>
-                        <a href="{{ route('tasks.index') }}" class="btn btn-light">
+                        <a href="{{ route('staff.tasks.index') }}" class="btn btn-light">
                             <i class="fas fa-arrow-left me-2"></i>Back to Tasks
                         </a>
                     </div>
@@ -35,7 +35,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('staff.tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -97,18 +97,12 @@
                                     </select>
                                 </div>
 
-                                <!-- Start Date -->
-                                <div class="form-group mb-4">
-                                    <label for="task_start_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Start Date</label>
-                                    <input type="date" class="form-control" id="task_start_date" name="task_start_date"
-                                           value="{{ old('task_start_date', $task->task_start_date) }}">
-                                </div>
 
                                 <!-- Due Date -->
                                 <div class="form-group mb-4">
-                                    <label for="task_due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
-                                    <input type="date" class="form-control" id="task_due_date" name="task_due_date"
-                                           value="{{ old('task_due_date', $task->task_due_date) }}">
+                                    <label for="due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
+                                    <input type="date" class="form-control" id="due_date" name="due_date"
+                                           value="{{ old('due_date', $task->due_date) }}">
                                 </div>
 
                                 <!-- Task Attachments -->
@@ -126,9 +120,7 @@
                                         </div>
                                         <div class="card-body">
                                             @php
-                                                $attachments = is_array($task->task_attachments)
-                                                    ? $task->task_attachments
-                                                    : json_decode($task->task_attachments, true);
+                                                $attachments = $task->task_attachments ?? [];
                                             @endphp
                                             @if(!empty($attachments))
                                                 <div class="row">

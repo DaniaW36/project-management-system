@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Tasks Overview</h4>
                             <p class="mb-0">Manage and track all your tasks</p>
                         </div>
-                        <a href="{{ route('tasks.create') }}" class="btn btn-light">
+                        <a href="{{ route('staff.tasks.create') }}" class="btn btn-light">
                             <i class="fas fa-plus me-2"></i>Add New Task
                         </a>
                     </div>
@@ -49,7 +49,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">In Progress</p>
-                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'In Progress')->count() }}</h5>
+                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'in_progress')->count() }}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -68,7 +68,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Completed</p>
-                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'Completed')->count() }}</h5>
+                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'completed')->count() }}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -87,7 +87,7 @@
                         <div class="col-8">
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Pending</p>
-                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'Pending')->count() }}</h5>
+                                <h5 class="font-weight-bolder mb-0">{{ $tasks->where('task_status', 'pending')->count() }}</h5>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -175,19 +175,19 @@
                             </td>
                             <td class="align-middle text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('tasks.show', $task->id) }}" 
+                                    <a href="{{ route('staff.tasks.show', $task->id) }}" 
                                         class="btn btn-link text-primary px-3 mb-0" 
                                         data-bs-toggle="tooltip" 
                                         data-bs-original-title="View task">
                                         <i class="fas fa-eye text-primary me-2"></i>View
                                     </a>
-                                    <a href="{{ route('tasks.edit', $task->id) }}" 
+                                    <a href="{{ route('staff.tasks.edit', $task->id) }}" 
                                         class="btn btn-link text-warning px-3 mb-0"
                                         data-bs-toggle="tooltip" 
                                         data-bs-original-title="Edit task">
                                         <i class="fas fa-pencil-alt text-warning me-2"></i>Edit
                                     </a>
-                                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('staff.tasks.destroy', $task->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 

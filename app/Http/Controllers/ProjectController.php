@@ -58,11 +58,11 @@ class ProjectController extends Controller
             'proj_start_date' => $request->proj_start_date,
             'proj_end_date' => $request->proj_end_date,
             'proj_latest_update' => now(),
-            'proj_attachments' => json_encode ($attachments),
-            'user_id' => auth()-> id,  //auth()->id(), // Assuming logged-in user is the project owner
+            'proj_attachments' => $attachments,
+            'user_id' => auth()->id(), // Assuming logged-in user is the project owner
         ]);
 
-        return redirect()->route('projects.index')->with('success', 'Project created successfully.');
+        return redirect()->route('staff.projects.index')->with('success', 'Project created successfully.');
     }
 
     public function edit($id)
@@ -72,32 +72,32 @@ class ProjectController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'proj_name' => 'required|string|max:255',
-        'proj_desc' => 'required|string',
-        'proj_status' => 'required',
-        'proj_statusDetails' => 'nullable',
-        'proj_start_date' => 'required|date',
-        'proj_end_date' => 'required|date|after_or_equal:proj_start_date',
-        'proj_attachments.*' => 'nullable|file|max:10240', // max 10MB
+    {
+        $request->validate([
+            'proj_name' => 'required|string|max:255',
+            'proj_desc' => 'required|string',
+            'proj_status' => 'required',
+            'proj_statusDetails' => 'nullable',
+            'proj_start_date' => 'required|date',
+            'proj_end_date' => 'required|date|after_or_equal:proj_start_date',
+            'proj_attachments.*' => 'nullable|file|max:10240', // max 10MB
 
-    ]);
+        ]);
 
-$projects = Project::findOrFail($id);
+        $project = Project::findOrFail($id);
 
-$attachments  = json_decode($projects->proj_attachments, true) ?? [];
+        $attachments = $project->proj_attachments ?? [];
 
- // Handle new attachments
- if ($request->hasFile('proj_attachments')) {
-    foreach ($request->file('proj_attachments') as $file) {
-        $path = $file->storeAs('attachments', $file->getClientOriginalName(), 'public');
-        $attachments[] = $path;
-    }
-}
+        // Handle new attachments
+        if ($request->hasFile('proj_attachments')) {
+            foreach ($request->file('proj_attachments') as $file) {
+                $path = $file->storeAs('attachments', $file->getClientOriginalName(), 'public');
+                $attachments[] = $path;
+            }
+        }
 
-// Save solution
-$projects->update([
+        // Save solution
+        $project->update([
             'proj_name' => $request->proj_name,
             'proj_desc' => $request->proj_desc,
             'proj_status' => $request->proj_status,
@@ -105,12 +105,10 @@ $projects->update([
             'proj_start_date' => $request->proj_start_date,
             'proj_end_date' => $request->proj_end_date,
             'proj_latest_update' => now(),
-            'proj_attachments' => json_encode ($attachments),
-            'user_id' => auth()->id(), // Assuming logged-in user is the project owner
+            'proj_attachments' => $attachments,
         ]);
 
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
-
+        return redirect()->route('staff.projects.index')->with('success', 'Project updated successfully.');
     }
 
     public function destroy($id)
@@ -118,36 +116,35 @@ $projects->update([
         $projects = Project::findOrFail($id);
         $projects->delete();
 
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+        return redirect()->route('staff.projects.index')->with('success', 'Project deleted successfully.');
     }
-    public function deleteAttachment(Project $project, $index)
-    {
-        // Get the attachments array
-        $attachments = json_decode($project->proj_attachments, true) ?? [];
 
-        // Check if the attachment exists in the array
+    public function deleteAttachment(Request $request, Project $project, $index)
+    {
+        $attachments = $project->proj_attachments ?? [];
+
         if (isset($attachments[$index])) {
-            // Get the file path
-            $filePath = storage_path('app/public/' . $attachments[$index]);
+            $fileToDelete = $attachments[$index];
 
             // Delete file from storage
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
+            Storage::disk('public')->delete($fileToDelete);
 
             // Remove the attachment and reindex the array
             unset($attachments[$index]);
-            $attachments = array_values($attachments);
+            $project->proj_attachments = array_values($attachments); // Eloquent handles array to JSON conversion
+            $project->save();
 
-            // Update the project with the new attachments
-            $project->update([
-                'proj_attachments' => json_encode($attachments)
-            ]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
+            }
+            // Fallback for non-AJAX, though less likely to be used now
+            return redirect()->route('staff.projects.edit', $project->id)->with('success', 'Attachment deleted successfully.');
         }
 
-        // Redirect back with a success message
-        return redirect()->route('projects.edit', $project->id)->with('success', 'Attachment deleted successfully.');
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'Attachment not found or already deleted.'], 404);
+        }
+        // Fallback for non-AJAX
+        return redirect()->route('staff.projects.edit', $project->id)->with('error', 'Attachment not found.');
     }
-
-
 }

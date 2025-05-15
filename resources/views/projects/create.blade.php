@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Create New Project</h4>
                             <p class="mb-0">Add a new project to the system</p>
                         </div>
-                        <a href="{{ route('projects.index') }}" class="btn btn-light">
+                        <a href="{{ route('staff.projects.index') }}" class="btn btn-light">
                             <i class="fas fa-arrow-left me-2"></i>Back to Projects
                         </a>
                     </div>
@@ -35,7 +35,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('projects.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('staff.projects.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">

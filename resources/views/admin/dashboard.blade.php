@@ -112,7 +112,9 @@
                     <h6>Task Status Overview</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="taskStatusChart" height="300"></canvas>
+                    <div class="chart">
+                        <canvas id="taskStatusChart" class="chart-canvas" height="300"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,7 +168,7 @@
             <div class="card">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>Active Projects</h6>
-                    <a href="{{ route('projects.index') }}" class="btn btn-sm btn-primary">View All</a>
+                    <a href="{{ route('admin.projects.index') }}" class="btn btn-sm btn-primary">View All</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -194,17 +196,34 @@
                                         @php
                                             $totalTasks = $project->tasks->count();
                                             $completedTasks = $project->tasks->where('task_status', 'completed')->count();
-                                            $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+                                            $inProgressTasks = $project->tasks->where('task_status', 'in_progress')->count();
+                                            $pendingTasks = $project->tasks->where('task_status', 'pending')->count();
+                                            $notStartedTasks = $project->tasks->where('task_status', 'not_started')->count();
+                                            
+                                            // Calculate weighted progress
+                                            $progress = 0;
+                                            if ($totalTasks > 0) {
+                                                $progress = (
+                                                    ($completedTasks * 100) +
+                                                    ($inProgressTasks * 50) +
+                                                    ($pendingTasks * 25) +
+                                                    ($notStartedTasks * 0)
+                                                ) / $totalTasks;
+                                            }
                                         @endphp
-                                        <div class="progress">
-                                            <div class="progress-bar bg-gradient-success" role="progressbar" 
-                                                style="width: {{ $progress }}%" 
-                                                aria-valuenow="{{ $progress }}" 
-                                                aria-valuemin="0" 
-                                                aria-valuemax="100">
-                                                {{ round($progress) }}%
+                                        @if($totalTasks > 0)
+                                            <div class="progress">
+                                                <div class="progress-bar bg-gradient-success" role="progressbar" 
+                                                    style="width: {{ $progress }}%" 
+                                                    aria-valuenow="{{ $progress }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                    {{ round($progress) }}%
+                                                </div>
                                             </div>
-                                        </div>
+                                        @else
+                                            <span class="text-muted">No tasks</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-gradient-info text-white">
@@ -225,7 +244,7 @@
             <div class="card">
                 <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                     <h6>Recent Tasks</h6>
-                    <a href="{{ route('tasks.index') }}" class="btn btn-sm btn-primary">View All</a>
+                    <a href="{{ route('admin.tasks.index') }}" class="btn btn-sm btn-primary">View All</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

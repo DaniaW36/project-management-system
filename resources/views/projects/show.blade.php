@@ -13,10 +13,10 @@
                             <p class="mb-0">Project Details</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-light">
+                            <a href="{{ route('staff.projects.edit', $project->id) }}" class="btn btn-light">
                                 <i class="fas fa-pencil-alt me-2"></i>Edit Project
                             </a>
-                            <a href="{{ route('projects.index') }}" class="btn btn-light">
+                            <a href="{{ route('staff.projects.index') }}" class="btn btn-light">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Projects
                             </a>
                         </div>
@@ -116,7 +116,7 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $attachments = json_decode($project->proj_attachments, true) ?? [];
+                        $attachments = $project->proj_attachments ?? [];
                     @endphp
                     @if(!empty($attachments))
                         <div class="row">

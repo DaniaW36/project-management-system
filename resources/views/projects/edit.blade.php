@@ -12,7 +12,7 @@
                             <h4 class="mb-0">Edit Project</h4>
                             <p class="mb-0">Update project details and attachments</p>
                         </div>
-                        <a href="{{ route('projects.index') }}" class="btn btn-light">
+                        <a href="{{ route('staff.projects.index') }}" class="btn btn-light">
                             <i class="fas fa-arrow-left me-2"></i>Back to Projects
                         </a>
                     </div>
@@ -35,7 +35,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('projects.update', $projects->id) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('staff.projects.update', $projects->id) }}" method="POST" enctype="multipart/form-data">
                         @method('PUT')
                         @csrf
 
@@ -83,14 +83,14 @@
                                 <div class="form-group mb-4">
                                     <label for="proj_start_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Start Date</label>
                                     <input type="date" class="form-control" id="proj_start_date" name="proj_start_date"
-                                           value="{{ old('proj_start_date', $projects->proj_start_date ?? '') }}">
+                                           value="{{ old('proj_start_date', $projects->proj_start_date ? \Carbon\Carbon::parse($projects->proj_start_date)->format('Y-m-d') : '') }}">
                                 </div>
 
                                 <!-- End Date -->
                                 <div class="form-group mb-4">
                                     <label for="proj_end_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">End Date</label>
                                     <input type="date" class="form-control" id="proj_end_date" name="proj_end_date"
-                                           value="{{ old('proj_end_date', $projects->proj_end_date ?? '') }}">
+                                           value="{{ old('proj_end_date', $projects->proj_end_date ? \Carbon\Carbon::parse($projects->proj_end_date)->format('Y-m-d') : '') }}">
                                 </div>
 
                                 <!-- New Attachments Upload -->
@@ -110,9 +110,7 @@
                                 </div>
                                 <div class="card-body">
                                     @php
-                                        $attachments = is_array($projects->proj_attachments)
-                                            ? $projects->proj_attachments
-                                            : json_decode($projects->proj_attachments, true);
+                                        $attachments = $projects->proj_attachments ?? [];
                                     @endphp
                                     @if(!empty($attachments))
                                         <div class="row">
@@ -134,14 +132,11 @@
                                                                    target="_blank">
                                                                     <i class="fas fa-eye me-2"></i>View
                                                                 </a>
-                                                                <form action="{{ route('projects.delete-attachment', ['project' => $projects->id, 'index' => $index]) }}" 
-                                                                      method="POST" 
-                                                                      onsubmit="return confirm('Are you sure you want to delete this attachment?')">
-                                                                    @csrf
-                                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                                        <i class="fas fa-trash-alt me-2"></i>Delete
-                                                                    </button>
-                                                                </form>
+                                                                <button type="button" class="btn btn-sm btn-danger delete-attachment-btn"
+                                                                        data-delete-url="{{ route('staff.projects.delete-attachment', ['project' => $projects->id, 'index' => $index]) }}"
+                                                                        data-attachment-card-id="attachment-card-{{ $index }}">
+                                                                    <i class="fas fa-trash-alt me-2"></i>Delete
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -167,4 +162,63 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-attachment-btn');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent any default button action
+            
+            const deleteUrl = this.dataset.deleteUrl;
+            const attachmentCardId = this.dataset.attachmentCardId; // We might need this if card IDs are more complex
+            const attachmentCard = this.closest('.col-md-4.mb-4'); // Find the parent card column
+
+            if (confirm('Are you sure you want to delete this attachment?')) {
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}', // Get CSRF token
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (attachmentCard) {
+                            attachmentCard.remove();
+                        }
+                        // Optionally, display a success message (e.g., using a toast notification library)
+                        alert(data.message || 'Attachment deleted successfully.'); 
+                        // If all attachments are deleted, you might want to show the "No attachments" message.
+                        const attachmentsContainer = document.querySelector('#existing-attachments-container .row'); // Add an ID to the container if needed
+                        if (attachmentsContainer && attachmentsContainer.children.length === 0) {
+                            const noAttachmentsP = document.querySelector('#no-attachments-placeholder'); // Add an ID to the placeholder P tag
+                            if (noAttachmentsP) noAttachmentsP.style.display = 'block';
+                        }
+                    } else {
+                        alert(data.message || 'Error deleting attachment.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the attachment.');
+                });
+            }
+        });
+    });
+
+    // Ensure CSRF token is available as a meta tag for the script
+    if (!document.querySelector('meta[name="csrf-token"]')) {
+        let meta = document.createElement('meta');
+        meta.name = "csrf-token";
+        meta.content = "{{ csrf_token() }}";
+        document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+});
+</script>
+@endpush
+
 @endsection

@@ -17,6 +17,9 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         $totalProjects = Project::where('user_id', $userId)->count();
+        $activeProjects = Project::where('user_id', $userId)
+                               ->where('proj_status', 'In Progress')
+                               ->count();
         $totalTasks = Task::where('user_id', $userId)->count();
         $completedTasks = Task::where('user_id', $userId)->where('task_status', 'completed')->count();
         $pendingTasks = Task::where('user_id', $userId)->where('task_status', '!=', 'completed')->count();
@@ -27,6 +30,12 @@ class DashboardController extends Controller
             ->groupBy('task_status')
             ->pluck('total', 'task_status');
 
+        // Ensure all statuses are present in the chart data
+        $allStatuses = ['not_started', 'pending', 'in_progress', 'completed'];
+        $taskStatusChart = collect($allStatuses)->mapWithKeys(function ($status) use ($taskStatusChart) {
+            return [$status => $taskStatusChart->get($status, 0)];
+        });
+
         $recentTasks = Task::with('project')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
@@ -35,6 +44,7 @@ class DashboardController extends Controller
 
         return view('staffdashboard.dashboard', compact(
             'totalProjects',
+            'activeProjects',
             'totalTasks',
             'completedTasks',
             'pendingTasks',
