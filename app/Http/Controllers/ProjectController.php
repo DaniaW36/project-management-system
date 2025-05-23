@@ -147,4 +147,29 @@ class ProjectController extends Controller
         // Fallback for non-AJAX
         return redirect()->route('staff.projects.edit', $project->id)->with('error', 'Attachment not found.');
     }
+
+    /**
+     * Display a listing of other staff's projects.
+     */
+    public function staffProjects()
+    {
+        $projects = Project::with(['user', 'tasks'])
+            ->where('user_id', '!=', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('projects.staff_index', compact('projects'));
+    }
+
+    /**
+     * Display the specified staff project in read-only mode.
+     */
+    public function staffProjectShow($id)
+    {
+        $project = Project::with(['user', 'tasks.user'])
+            ->where('user_id', '!=', auth()->id())
+            ->findOrFail($id);
+
+        return view('projects.staff_show', compact('project'));
+    }
 }

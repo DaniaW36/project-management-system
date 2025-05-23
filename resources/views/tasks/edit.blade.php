@@ -102,7 +102,7 @@
                                 <div class="form-group mb-4">
                                     <label for="due_date" class="form-label text-uppercase text-secondary text-xs font-weight-bolder">Due Date</label>
                                     <input type="date" class="form-control" id="due_date" name="due_date"
-                                           value="{{ old('due_date', $task->due_date) }}">
+                                           value="{{ old('due_date', $task->due_date ? $task->due_date->format('Y-m-d') : '') }}">
                                 </div>
 
                                 <!-- Task Attachments -->

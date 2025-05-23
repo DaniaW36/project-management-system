@@ -54,7 +54,11 @@ class TaskController extends Controller
         if ($request->hasFile('task_attachments')) {
             $attachments = [];
             foreach ($request->file('task_attachments') as $file) {
-                $path = $file->store('task-attachments');
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+                $uniqueName = $fileName . '_' . time() . '.' . $extension;
+                $path = $file->storeAs('task-attachments', $uniqueName, 'public');
                 $attachments[] = $path;
             }
             $task->task_attachments = $attachments;
@@ -102,7 +106,11 @@ class TaskController extends Controller
         if ($request->hasFile('task_attachments')) {
             $attachments = $task->task_attachments ?? [];
             foreach ($request->file('task_attachments') as $file) {
-                $path = $file->store('task-attachments');
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+                $uniqueName = $fileName . '_' . time() . '.' . $extension;
+                $path = $file->storeAs('task-attachments', $uniqueName, 'public');
                 $attachments[] = $path;
             }
             $task->task_attachments = $attachments;

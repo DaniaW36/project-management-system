@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:staff')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Projects
+        // My Projects
         Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
         Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
         Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
@@ -37,7 +37,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy'])->name('projects.destroy');
         Route::post('/projects/{project}/attachments/{index}/delete', [ProjectController::class, 'deleteAttachment'])->name('projects.delete-attachment');
 
-        // Tasks
+        // View Other Staff Projects (Read-only)
+        Route::get('/staff-projects', [ProjectController::class, 'staffProjects'])->name('staff-projects.index');
+        Route::get('/staff-projects/{id}', [ProjectController::class, 'staffProjectShow'])->name('staff-projects.show');
+
+        // My Tasks
         Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
         Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
         Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
@@ -47,6 +51,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
         Route::delete('/tasks/{task}/attachments/{index}', [TaskController::class, 'deleteAttachment'])->name('tasks.delete-attachment');
         Route::get('/projects/{project}/tasks', [TaskController::class, 'projectTasks'])->name('projects.tasks.index');
+
+        // View Other Staff Tasks (Read-only)
+        Route::get('/staff-tasks', [TaskController::class, 'staffTasks'])->name('staff-tasks.index');
+        Route::get('/staff-tasks/{task}', [TaskController::class, 'staffTaskShow'])->name('staff-tasks.show');
     });
 
     // ---------------- ADMIN ROUTES ----------------

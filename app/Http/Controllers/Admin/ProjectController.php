@@ -42,7 +42,11 @@ class ProjectController extends Controller
         $attachments = [];
         if ($request->hasFile('proj_attachments')) {
             foreach ($request->file('proj_attachments') as $file) {
-                $path = $file->store('attachments', 'public');
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+                $uniqueName = $fileName . '_' . time() . '.' . $extension;
+                $path = $file->storeAs('attachments', $uniqueName, 'public');
                 $attachments[] = $path;
             }
         }
@@ -92,7 +96,11 @@ class ProjectController extends Controller
         
         if ($request->hasFile('proj_attachments')) {
             foreach ($request->file('proj_attachments') as $file) {
-                $path = $file->store('attachments', 'public');
+                $originalName = $file->getClientOriginalName();
+                $extension = $file->getClientOriginalExtension();
+                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+                $uniqueName = $fileName . '_' . time() . '.' . $extension;
+                $path = $file->storeAs('attachments', $uniqueName, 'public');
                 $attachments[] = $path;
             }
         }

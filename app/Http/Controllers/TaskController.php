@@ -171,4 +171,28 @@ public function deleteAttachment(Task $task, $index)
     return redirect()->route('tasks.edit', $task->id)->with('success', 'Attachment deleted successfully.');
 }
 
+    /**
+     * Display a listing of other staff's tasks.
+     */
+    public function staffTasks()
+    {
+        $tasks = Task::with(['project', 'user'])
+            ->where('user_id', '!=', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('tasks.staff_index', compact('tasks'));
+    }
+
+    /**
+     * Display the specified staff task in read-only mode.
+     */
+    public function staffTaskShow($id)
+    {
+        $task = Task::with(['project', 'user'])
+            ->where('user_id', '!=', auth()->id())
+            ->findOrFail($id);
+
+        return view('tasks.staff_show', compact('task'));
+    }
 }

@@ -97,23 +97,68 @@
                     <span class="nav-link-text">Dashboard</span>
                 </a>
             </li>
+
+            <!-- Projects Section -->
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center {{ Request::is('staff/projects*') ? 'active' : '' }}" href="{{ route('staff.projects.index') }}">
+                <a data-bs-toggle="collapse" href="#projectsCollapse" class="nav-link {{ Request::is('staff/projects*') || Request::is('staff/staff-projects*') ? 'active' : '' }}" aria-controls="projectsCollapse" role="button" aria-expanded="{{ Request::is('staff/projects*') || Request::is('staff/staff-projects*') ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
                         <i class="fas fa-project-diagram text-success"></i>
                     </div>
-                    <span class="nav-link-text">My Projects</span>
+                    <span class="nav-link-text">Projects</span>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </a>
+                <div class="collapse {{ Request::is('staff/projects*') || Request::is('staff/staff-projects*') ? 'show' : '' }}" id="projectsCollapse">
+                    <ul class="nav nav-sm flex-column ms-4">
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('staff/projects*') && !Request::is('staff/staff-projects*') ? 'active' : '' }}" href="{{ route('staff.projects.index') }}">
+                                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
+                                    <i class="fas fa-folder text-success"></i>
+                                </div>
+                                <span class="nav-link-text">My Projects</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('staff/staff-projects*') ? 'active' : '' }}" href="{{ route('staff.staff-projects.index') }}">
+                                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
+                                    <i class="fas fa-users text-success"></i>
+                                </div>
+                                <span class="nav-link-text">Other Staff Projects</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
+
+            <!-- Tasks Section -->
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center {{ Request::is('staff/tasks*') ? 'active' : '' }}" href="{{ route('staff.tasks.index') }}">
+                <a data-bs-toggle="collapse" href="#tasksCollapse" class="nav-link {{ Request::is('staff/tasks*') || Request::is('staff/staff-tasks*') ? 'active' : '' }}" aria-controls="tasksCollapse" role="button" aria-expanded="{{ Request::is('staff/tasks*') || Request::is('staff/staff-tasks*') ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
-                    <i class="fas fa-tasks text-info"></i>
+                        <i class="fas fa-tasks text-info"></i>
                     </div>
-                    <span class="nav-link-text">My Tasks</span>
+                    <span class="nav-link-text">Tasks</span>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </a>
+                <div class="collapse {{ Request::is('staff/tasks*') || Request::is('staff/staff-tasks*') ? 'show' : '' }}" id="tasksCollapse">
+                    <ul class="nav nav-sm flex-column ms-4">
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('staff/tasks*') && !Request::is('staff/staff-tasks*') ? 'active' : '' }}" href="{{ route('staff.tasks.index') }}">
+                                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
+                                    <i class="fas fa-clipboard-list text-info"></i>
+                                </div>
+                                <span class="nav-link-text">My Tasks</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('staff/staff-tasks*') ? 'active' : '' }}" href="{{ route('staff.staff-tasks.index') }}">
+                                <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2">
+                                    <i class="fas fa-tasks text-info"></i>
+                                </div>
+                                <span class="nav-link-text">Other Staff Tasks</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
-            
         @endif
       
         {{-- Common Profile Link --}}
