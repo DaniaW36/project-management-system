@@ -66,10 +66,25 @@
                                     <th>Assigned Staff</th>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            
                                             <div>
                                                 <h6 class="mb-0">{{ $project->user->name }}</h6>
                                                 <p class="text-xs text-secondary mb-0">{{ $project->user->email }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Created By</th>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                @if($project->creator)
+                                                    <h6 class="mb-0">{{ $project->creator->name }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ $project->creator->email }}</p>
+                                                    <p class="text-xs text-secondary mb-0">Created on {{ $project->created_at->format('d M Y') }}</p>
+                                                @else
+                                                    <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
@@ -121,6 +136,7 @@
                                         <tr>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Task</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Assigned To</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Created By</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priority</th>
                                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
@@ -141,6 +157,15 @@
                                                 <td>
                                                     <p class="text-xs font-weight-bold mb-0">{{ $task->user->name }}</p>
                                                     <p class="text-xs text-secondary mb-0">{{ $task->user->email }}</p>
+                                                </td>
+                                                <td>
+                                                    @if($task->creator)
+                                                        <p class="text-xs font-weight-bold mb-0">{{ $task->creator->name }}</p>
+                                                        <p class="text-xs text-secondary mb-0">{{ $task->creator->email }}</p>
+                                                        <p class="text-xs text-secondary mb-0">{{ $task->created_at->format('d M Y') }}</p>
+                                                    @else
+                                                        <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                                    @endif
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
                                                     @php

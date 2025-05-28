@@ -145,7 +145,8 @@
                                                                         <button type="button" 
                                                                                 class="btn btn-sm btn-danger delete-attachment"
                                                                                 data-file="{{ $file }}"
-                                                                                data-task-id="{{ $task->id }}">
+                                                                                data-task-id="{{ $task->id }}"
+                                                                                data-index="{{ $loop->iteration - 1 }}">
                                                                             <i class="fas fa-trash-alt me-2"></i>Delete
                                                                         </button>
                                                                     </div>
@@ -182,22 +183,28 @@
 <script>
     // Handle attachment deletion
     document.querySelectorAll('.delete-attachment').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             if (confirm('Are you sure you want to delete this attachment?')) {
-                const file = this.dataset.file;
                 const taskId = this.dataset.taskId;
+                const index = this.dataset.index;
                 
-                fetch(`/tasks/${taskId}/attachments`, {
+                fetch(`/staff/tasks/${taskId}/attachments/${index}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ file: file })
+                    }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        return response.json();
+                    }
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         this.closest('.col-md-6').remove();
                     } else {
                         alert('Failed to delete attachment');

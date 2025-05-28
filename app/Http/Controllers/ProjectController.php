@@ -11,13 +11,13 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::where('user_id', auth()->id())->get();
+        $projects = Project::with(['user', 'creator'])->where('user_id', auth()->id())->get();
         return view('projects.index', compact(['projects']));
     }
 
     public function show($id)
     {
-        $project = Project::findorFail($id);
+        $project = Project::with(['user', 'creator'])->findorFail($id);
         return view('projects.show', compact('project'));
     }
 
@@ -60,6 +60,7 @@ class ProjectController extends Controller
             'proj_latest_update' => now(),
             'proj_attachments' => $attachments,
             'user_id' => auth()->id(), // Assuming logged-in user is the project owner
+            'created_by' => auth()->id(), // Set the creator to the current user
         ]);
 
         return redirect()->route('staff.projects.index')->with('success', 'Project created successfully.');
@@ -153,7 +154,7 @@ class ProjectController extends Controller
      */
     public function staffProjects()
     {
-        $projects = Project::with(['user', 'tasks'])
+        $projects = Project::with(['user', 'tasks', 'creator'])
             ->where('user_id', '!=', auth()->id())
             ->latest()
             ->get();
@@ -166,7 +167,7 @@ class ProjectController extends Controller
      */
     public function staffProjectShow($id)
     {
-        $project = Project::with(['user', 'tasks.user'])
+        $project = Project::with(['user', 'tasks.user', 'creator'])
             ->where('user_id', '!=', auth()->id())
             ->findOrFail($id);
 

@@ -19,7 +19,7 @@ class TaskController extends Controller
 
     public function index()
     {
-        $tasks = Task::with(['project', 'user'])->latest()->get();
+        $tasks = Task::with(['project', 'user', 'creator'])->latest()->get();
         return view('admin.tasks.index', compact('tasks'));
     }
 
@@ -39,7 +39,18 @@ class TaskController extends Controller
             'user_id' => 'required|exists:users,id',
             'task_status' => 'required|in:not_started,pending,in_progress,completed',
             'task_priority' => 'required|in:low,medium,high',
-            'due_date' => 'required|date',
+            'due_date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    $project = Project::find($request->project_id);
+                    if ($project) {
+                        if ($value < $project->proj_start_date || $value > $project->proj_end_date) {
+                            $fail('The task due date must be between the project start date (' . $project->proj_start_date->format('M d, Y') . ') and end date (' . $project->proj_end_date->format('M d, Y') . ').');
+                        }
+                    }
+                },
+            ],
             'task_attachments.*' => 'nullable|file|max:2048'
         ]);
 
@@ -49,7 +60,16 @@ class TaskController extends Controller
                 ->withInput();
         }
 
-        $task = Task::create($request->except('task_attachments'));
+        $task = Task::create([
+            'task_name' => $request->task_name,
+            'task_desc' => $request->task_desc,
+            'project_id' => $request->project_id,
+            'user_id' => $request->user_id,
+            'created_by' => auth()->id(),
+            'task_status' => $request->task_status,
+            'task_priority' => $request->task_priority,
+            'due_date' => $request->due_date
+        ]);
 
         if ($request->hasFile('task_attachments')) {
             $attachments = [];
@@ -71,7 +91,7 @@ class TaskController extends Controller
 
     public function show(Task $task)
     {
-        $task->load(['project', 'user']);
+        $task->load(['project', 'user', 'creator']);
         return view('admin.tasks.show', compact('task'));
     }
 
@@ -91,7 +111,18 @@ class TaskController extends Controller
             'user_id' => 'required|exists:users,id',
             'task_status' => 'required|in:not_started,pending,in_progress,completed',
             'task_priority' => 'required|in:low,medium,high',
-            'due_date' => 'required|date',
+            'due_date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    $project = Project::find($request->project_id);
+                    if ($project) {
+                        if ($value < $project->proj_start_date || $value > $project->proj_end_date) {
+                            $fail('The task due date must be between the project start date (' . $project->proj_start_date->format('M d, Y') . ') and end date (' . $project->proj_end_date->format('M d, Y') . ').');
+                        }
+                    }
+                },
+            ],
             'task_attachments.*' => 'nullable|file|max:2048'
         ]);
 
@@ -101,7 +132,15 @@ class TaskController extends Controller
                 ->withInput();
         }
 
-        $task->update($request->except('task_attachments'));
+        $task->update([
+            'task_name' => $request->task_name,
+            'task_desc' => $request->task_desc,
+            'project_id' => $request->project_id,
+            'user_id' => $request->user_id,
+            'task_status' => $request->task_status,
+            'task_priority' => $request->task_priority,
+            'due_date' => $request->due_date
+        ]);
 
         if ($request->hasFile('task_attachments')) {
             $attachments = $task->task_attachments ?? [];

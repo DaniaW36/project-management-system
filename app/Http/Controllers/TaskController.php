@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Project;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Http\Request;
 
@@ -54,7 +55,18 @@ public function store(Request $request)
         'task_desc' => 'nullable|string',
         'task_status' => 'required|in:not_started,pending,in_progress,completed',
         'task_priority' => 'required',
-        'due_date' => 'required|date',
+        'due_date' => [
+            'required',
+            'date',
+            function ($attribute, $value, $fail) use ($request) {
+                $project = Project::find($request->project_id);
+                if ($project) {
+                    if ($value < $project->proj_start_date || $value > $project->proj_end_date) {
+                        $fail('The task due date must be between the project start date (' . $project->proj_start_date->format('M d, Y') . ') and end date (' . $project->proj_end_date->format('M d, Y') . ').');
+                    }
+                }
+            },
+        ],
         'task_attachments.*' => 'nullable|file|max:2048', // 2MB max per file
     ]);
 
@@ -62,7 +74,11 @@ public function store(Request $request)
 
     if ($request->hasFile('task_attachments')) {
         foreach ($request->file('task_attachments') as $file) {
-            $path = $file->store('attachments', 'public');
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+            $uniqueName = $fileName . '_' . time() . '.' . $extension;
+            $path = $file->storeAs('task-attachments', $uniqueName, 'public');
             $attachments[] = $path;
         }
     }
@@ -70,6 +86,7 @@ public function store(Request $request)
     Task::create([
         'project_id' => $request['project_id'],
         'user_id' => auth()->id(), // default to user 1 for now
+        'created_by' => auth()->id(), // Set the creator to the current user
         'task_name' => $request->task_name,
         'task_desc' => $request->task_desc,
         'task_status' => $request->task_status,
@@ -104,7 +121,18 @@ public function update(Request $request, $id)
         'project_id' => 'required|exists:projects,id',
         'task_status' => 'required|in:not_started,pending,in_progress,completed',
         'task_priority' => 'required|in:low,medium,high',
-        'due_date' => 'required|date',
+        'due_date' => [
+            'required',
+            'date',
+            function ($attribute, $value, $fail) use ($request) {
+                $project = Project::find($request->project_id);
+                if ($project) {
+                    if ($value < $project->proj_start_date || $value > $project->proj_end_date) {
+                        $fail('The task due date must be between the project start date (' . $project->proj_start_date->format('M d, Y') . ') and end date (' . $project->proj_end_date->format('M d, Y') . ').');
+                    }
+                }
+            },
+        ],
         'task_desc' => 'nullable|string',
         'task_attachments.*' => 'nullable|file|max:2048' // Fixed the field name
     ]);
@@ -115,7 +143,11 @@ public function update(Request $request, $id)
     // Handle new attachments
     if ($request->hasFile('task_attachments')) {
         foreach ($request->file('task_attachments') as $file) {
-            $path = $file->store('attachments', 'public');
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+            $uniqueName = $fileName . '_' . time() . '.' . $extension;
+            $path = $file->storeAs('task-attachments', $uniqueName, 'public');
             $attachments[] = $path;
         }
     }
@@ -149,13 +181,8 @@ public function deleteAttachment(Task $task, $index)
     $attachments = $task->task_attachments ?? [];
     
     if (isset($attachments[$index])) {
-        // Get the file path
-        $filePath = storage_path('app/public/' . $attachments[$index]);
-        dd($filePath);
         // Delete file from storage
-        if (file_exists($filePath)) {
-            unlink($filePath);
-        }
+        Storage::disk('public')->delete($attachments[$index]);
 
         // Remove the attachment and reindex the array
         unset($attachments[$index]);
@@ -163,12 +190,21 @@ public function deleteAttachment(Task $task, $index)
 
         // Update the task with the new attachments
         $task->update([
-            'task_attachments' => json_encode($attachments)
+            'task_attachments' => $attachments
         ]);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Attachment deleted successfully.');
     }
 
-    // Redirect back with a success message
-    return redirect()->route('tasks.edit', $task->id)->with('success', 'Attachment deleted successfully.');
+    if (request()->ajax() || request()->wantsJson()) {
+        return response()->json(['success' => false, 'message' => 'Attachment not found.'], 404);
+    }
+
+    return redirect()->back()->with('error', 'Attachment not found.');
 }
 
     /**
@@ -176,7 +212,7 @@ public function deleteAttachment(Task $task, $index)
      */
     public function staffTasks()
     {
-        $tasks = Task::with(['project', 'user'])
+        $tasks = Task::with(['project', 'user', 'creator'])
             ->where('user_id', '!=', auth()->id())
             ->latest()
             ->get();
@@ -189,7 +225,7 @@ public function deleteAttachment(Task $task, $index)
      */
     public function staffTaskShow($id)
     {
-        $task = Task::with(['project', 'user'])
+        $task = Task::with(['project', 'user', 'creator'])
             ->where('user_id', '!=', auth()->id())
             ->findOrFail($id);
 

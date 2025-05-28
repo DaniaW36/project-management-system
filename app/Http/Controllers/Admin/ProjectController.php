@@ -55,6 +55,7 @@ class ProjectController extends Controller
             'proj_name' => $validated['proj_name'],
             'proj_desc' => $validated['proj_desc'],
             'user_id' => $validated['user_id'],
+            'created_by' => auth()->id(),
             'proj_start_date' => $validated['proj_start_date'],
             'proj_end_date' => $validated['proj_end_date'],
             'proj_status' => $validated['proj_status'],

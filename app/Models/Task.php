@@ -10,10 +10,11 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
-        'task_name',
-        'task_desc',
         'project_id',
         'user_id',
+        'created_by',
+        'task_name',
+        'task_desc',
         'task_status',
         'task_priority',
         'due_date',
@@ -21,10 +22,21 @@ class Task extends Model
     ];
 
     protected $casts = [
-        'due_date' => 'date',
+        'due_date' => 'datetime',
         'task_attachments' => 'array',
         'completed_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($task) {
+            if (is_null($task->created_by)) {
+                $task->created_by = auth()->id();
+            }
+        });
+    }
 
     public function project()
     {
@@ -34,6 +46,11 @@ class Task extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // Accessor to ensure task_attachments is always an array

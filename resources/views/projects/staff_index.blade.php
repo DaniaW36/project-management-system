@@ -20,6 +20,7 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Assigned To</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created By</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Start Date</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">End Date</th>
@@ -40,6 +41,14 @@
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">{{ $project->user->name }}</p>
                                         <p class="text-xs text-secondary mb-0">{{ $project->user->email }}</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        @if($project->creator)
+                                            <p class="text-xs font-weight-bold mb-0">{{ $project->creator->name }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ $project->creator->email }}</p>
+                                        @else
+                                            <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                        @endif
                                     </td>
                                     <td class="align-middle text-center text-sm">
                                         @php

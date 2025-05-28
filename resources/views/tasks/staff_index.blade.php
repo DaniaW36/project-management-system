@@ -21,6 +21,7 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Task</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Project</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Assigned To</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created By</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priority</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
@@ -44,6 +45,14 @@
                                     <td class="align-middle text-center">
                                         <p class="text-xs font-weight-bold mb-0">{{ $task->user->name }}</p>
                                         <p class="text-xs text-secondary mb-0">{{ $task->user->email }}</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        @if($task->creator)
+                                            <p class="text-xs font-weight-bold mb-0">{{ $task->creator->name }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ $task->creator->email }}</p>
+                                        @else
+                                            <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                        @endif
                                     </td>
                                     <td class="align-middle text-center text-sm">
                                         @php

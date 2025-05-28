@@ -215,7 +215,11 @@
                         <div class="text-end">
                             <h6 class="text-sm font-weight-bold mb-0">Created By</h6>
                             <p class="text-xs text-secondary mb-0">
-                                {{ $project->user->name ?? 'Unknown' }}
+                                @if($project->creator)
+                                    {{ $project->creator->name }}
+                                @else
+                                    Unknown creator
+                                @endif
                             </p>
                         </div>
                     </div>

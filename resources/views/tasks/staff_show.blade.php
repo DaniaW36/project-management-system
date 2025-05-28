@@ -77,6 +77,22 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr>
+                                <th>Created By</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            @if($task->creator)
+                                                <h6 class="mb-0">{{ $task->creator->name }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ $task->creator->email }}</p>
+                                                <p class="text-xs text-secondary mb-0">Created on {{ $task->created_at->format('d M Y') }}</p>
+                                            @else
+                                                <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>

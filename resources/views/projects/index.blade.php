@@ -123,10 +123,11 @@
                 <table class="table align-items-center mb-0" id="projectsTable">
                     <thead>
                         <tr>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project Name</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Description</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Progress</th>
+                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Created By</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
                             <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
                         </tr>
@@ -188,6 +189,14 @@
                                         </div>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="align-middle text-center">
+                                @if($project->creator)
+                                    <p class="text-xs font-weight-bold mb-0">{{ $project->creator->name }}</p>
+                                    <p class="text-xs text-secondary mb-0">{{ $project->creator->email }}</p>
+                                @else
+                                    <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                @endif
                             </td>
                             <td class="align-middle text-center">
                                 <span class="text-secondary text-xs font-weight-bold">

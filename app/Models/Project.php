@@ -13,6 +13,7 @@ class Project extends Model
         'proj_name',
         'proj_desc',
         'user_id',
+        'created_by',
         'proj_start_date',
         'proj_end_date',
         'proj_status',
@@ -36,6 +37,11 @@ class Project extends Model
     public function user()
     {
         return $this->belongsTo(User::class); // Assuming each project belongs to one user
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     // Accessor to ensure proj_attachments is always an array

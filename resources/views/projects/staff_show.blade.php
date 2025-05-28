@@ -70,6 +70,22 @@
                                 <th>Last Updated</th>
                                 <td>{{ $project->proj_latest_update->format('M d, Y H:i') }}</td>
                             </tr>
+                            <tr>
+                                <th>Created By</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            @if($project->creator)
+                                                <h6 class="mb-0">{{ $project->creator->name }}</h6>
+                                                <p class="text-xs text-secondary mb-0">{{ $project->creator->email }}</p>
+                                                <p class="text-xs text-secondary mb-0">Created on {{ $project->created_at->format('d M Y') }}</p>
+                                            @else
+                                                <p class="text-xs text-secondary mb-0">Unknown creator</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         </table>
                     </div>
                 </div>
