@@ -62,14 +62,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminIndex'])->name('dashboard');
 
         // Projects
-        Route::resource('projects', AdminProjectController::class);
         Route::delete('projects/{project}/attachments/{index}', [AdminProjectController::class, 'deleteAttachment'])
             ->name('projects.delete-attachment');
+        Route::resource('projects', AdminProjectController::class);
 
         // Tasks
-        Route::resource('tasks', AdminTaskController::class);
         Route::delete('tasks/{task}/attachments/{index}', [AdminTaskController::class, 'deleteAttachment'])
             ->name('tasks.delete-attachment');
+        Route::resource('tasks', AdminTaskController::class);
     });
 
 });

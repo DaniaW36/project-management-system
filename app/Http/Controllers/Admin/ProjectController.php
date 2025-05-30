@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -43,10 +44,7 @@ class ProjectController extends Controller
         if ($request->hasFile('proj_attachments')) {
             foreach ($request->file('proj_attachments') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $extension = $file->getClientOriginalExtension();
-                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
-                $uniqueName = $fileName . '_' . time() . '.' . $extension;
-                $path = $file->storeAs('attachments', $uniqueName, 'public');
+                $path = $file->storeAs('attachments', $originalName, 'public');
                 $attachments[] = $path;
             }
         }
@@ -98,10 +96,7 @@ class ProjectController extends Controller
         if ($request->hasFile('proj_attachments')) {
             foreach ($request->file('proj_attachments') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $extension = $file->getClientOriginalExtension();
-                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
-                $uniqueName = $fileName . '_' . time() . '.' . $extension;
-                $path = $file->storeAs('attachments', $uniqueName, 'public');
+                $path = $file->storeAs('attachments', $originalName, 'public');
                 $attachments[] = $path;
             }
         }
@@ -143,21 +138,31 @@ class ProjectController extends Controller
         $attachments = $project->proj_attachments ?? [];
 
         if (isset($attachments[$index])) {
-            $filePath = storage_path('app/public/' . $attachments[$index]);
-            
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
+            // Delete file from storage using Laravel's Storage facade
+            Storage::disk('public')->delete($attachments[$index]);
 
+            // Remove the attachment and reindex the array
             unset($attachments[$index]);
             $attachments = array_values($attachments);
 
+            // Update the project with the new attachments array
             $project->update([
-                'proj_attachments' => json_encode($attachments)
+                'proj_attachments' => $attachments
             ]);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
+            }
+
+            return redirect()->back()
+                ->with('success', 'Attachment deleted successfully.');
         }
 
-        return redirect()->route('admin.projects.edit', $project)
-            ->with('success', 'Attachment deleted successfully.');
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'Attachment not found.'], 404);
+        }
+
+        return redirect()->back()
+            ->with('error', 'Attachment not found.');
     }
 } 

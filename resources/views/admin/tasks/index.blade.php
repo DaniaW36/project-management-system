@@ -18,7 +18,6 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Task</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Project</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Created By</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priority</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Due Date</th>
@@ -39,14 +38,6 @@
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">{{ $task->project->proj_name }}</p>
-                                        </td>
-                                        <td>
-                                            @if($task->creator)
-                                                <p class="text-xs font-weight-bold mb-0">{{ $task->creator->name }}</p>
-                                                <p class="text-xs text-secondary mb-0">{{ $task->creator->email }}</p>
-                                            @else
-                                                <p class="text-xs text-secondary mb-0">Unknown creator</p>
-                                            @endif
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             @php

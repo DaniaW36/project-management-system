@@ -129,18 +129,16 @@
                                                 {{ basename($attachment) }}
                                             </div>
                                             <div>
-                                                <a href="{{ Storage::url($attachment) }}" class="btn btn-link text-info btn-sm" target="_blank">
+                                                <a href="{{ Storage::url($attachment) }}" class="btn btn-link text-info btn-sm" download>
                                                     <i class="fas fa-download"></i>
                                                 </a>
-                                                <form action="{{ route('admin.projects.delete-attachment', ['project' => $project, 'index' => $index]) }}" 
-                                                      method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-link text-danger btn-sm" 
-                                                            onclick="return confirm('Are you sure you want to delete this attachment?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
+                                                <button type="button" 
+                                                        class="btn btn-link text-danger btn-sm delete-attachment" 
+                                                        data-project-id="{{ $project->id }}"
+                                                        data-index="{{ $index }}"
+                                                        onclick="return confirm('Are you sure you want to delete this attachment?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     @endforeach
@@ -159,4 +157,37 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-attachment').forEach(button => {
+        button.addEventListener('click', function() {
+            const projectId = this.dataset.projectId;
+            const index = this.dataset.index;
+            
+            fetch(`/admin/projects/${projectId}/attachments/${index}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the attachment item from the DOM
+                    this.closest('.list-group-item').remove();
+                } else {
+                    alert('Failed to delete attachment');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the attachment');
+            });
+        });
+    });
+});
+</script>
+@endpush
 @endsection

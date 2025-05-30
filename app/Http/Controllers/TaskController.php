@@ -35,7 +35,10 @@ class TaskController extends Controller
      // Show tasks for a specific project
      public function projectTasks(Project $project)
      {
-         $tasks = $project->tasks()->with('user')->get();
+         $tasks = $project->tasks()
+             ->with(['user', 'creator'])
+             ->latest()
+             ->get();
          return view('tasks.project_tasks', compact('project', 'tasks'));
      }
 

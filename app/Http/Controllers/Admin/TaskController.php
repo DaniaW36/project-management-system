@@ -75,10 +75,8 @@ class TaskController extends Controller
             $attachments = [];
             foreach ($request->file('task_attachments') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $extension = $file->getClientOriginalExtension();
-                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
-                $uniqueName = $fileName . '_' . time() . '.' . $extension;
-                $path = $file->storeAs('task-attachments', $uniqueName, 'public');
+                $extension = $file->getClientOriginalName();
+                $path = $file->storeAs('task-attachments', $originalName, 'public');
                 $attachments[] = $path;
             }
             $task->task_attachments = $attachments;
@@ -143,13 +141,11 @@ class TaskController extends Controller
         ]);
 
         if ($request->hasFile('task_attachments')) {
-            $attachments = $task->task_attachments ?? [];
+            $attachments = [];
             foreach ($request->file('task_attachments') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $extension = $file->getClientOriginalExtension();
-                $fileName = pathinfo($originalName, PATHINFO_FILENAME);
-                $uniqueName = $fileName . '_' . time() . '.' . $extension;
-                $path = $file->storeAs('task-attachments', $uniqueName, 'public');
+                $extension = $file->getClientOriginalName();
+                $path = $file->storeAs('task-attachments', $originalName, 'public');
                 $attachments[] = $path;
             }
             $task->task_attachments = $attachments;
@@ -177,16 +173,34 @@ class TaskController extends Controller
 
     public function deleteAttachment(Task $task, $index)
     {
-        $attachments = $task->task_attachments;
+        $attachments = $task->task_attachments ?? [];
         
         if (isset($attachments[$index])) {
-            Storage::delete($attachments[$index]);
+            // Delete file from storage
+            Storage::disk('public')->delete($attachments[$index]);
+
+            // Remove the attachment and reindex the array
             unset($attachments[$index]);
-            $task->task_attachments = array_values($attachments);
-            $task->save();
+            $attachments = array_values($attachments);
+
+            // Update the task with the new attachments array
+            $task->update([
+                'task_attachments' => $attachments
+            ]);
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Attachment deleted successfully.']);
+            }
+
+            return redirect()->back()
+                ->with('success', 'Attachment deleted successfully.');
+        }
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'Attachment not found.'], 404);
         }
 
         return redirect()->back()
-            ->with('success', 'Attachment deleted successfully.');
+            ->with('error', 'Attachment not found.');
     }
 } 
